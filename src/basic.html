@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Three.js</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script type="module">
+        import * as Three from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js";
+        
+        function main(){
+            const canvas = document.querySelector("#canvas");
+            const renderer = new Three.WebGLRenderer({canvas})
+
+            const fov = 75;
+            const aspect = 2;
+            const near = 0.1;
+            const far = 5;
+
+            const camera = new Three.PerspectiveCamera(fov,aspect,near,far);
+            camera.position.z = 2;
+
+            const scene = new Three.Scene()
+
+            const boxWidth = 1;
+            const boxHeight = 1;
+            const boxDepth = 1;
+
+            const geometry = new Three.BoxGeometry(boxWidth,boxHeight,boxDepth);
+            const material = new Three.MeshPhongMaterial({color:0xaa44bb});
+
+            const box = new Three.Mesh(geometry,material)
+            scene.add(box);
+
+            const color = 0xffffff;
+            const intensity = 1;
+            const light = new Three.DirectionalLight(color,intensity);
+            light.position.set(-1,2,4);
+            scene.add(light);
+
+            function Render(time){
+                time *= 0.001;
+
+                box.rotation.x = time;
+                box.rotation.y = time;
+                renderer.render(scene,camera);
+
+                requestAnimationFrame(Render);
+            }
+            requestAnimationFrame(Render);
+        }
+    
+        main();
+    </script>
+</body>
+</html>
