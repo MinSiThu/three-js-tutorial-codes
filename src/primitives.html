@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primitives</title>
+    <style>
+        html,body{
+            margin:0;
+            padding: 0;
+            height: 100%;
+        }
+
+        canvas{
+            width: 100%;
+            height:100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import * as Three from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js";
+
+        const renderer = new Three.WebGLRenderer({
+            canvas:document.querySelector("#canvas")
+        })
+
+        const camera = new Three.PerspectiveCamera(75,2,0.1,20);
+        camera.position.z = 7;
+        const scene = new Three.Scene();
+
+        // to prevent blocking
+        function resizeRendererToDisplaySize(){
+            const canvas = renderer.domElement;
+            const pixelRatio = window.devicePixelRatio;
+
+            const width = canvas.width * pixelRatio;
+            const height = canvas.height * pixelRatio;
+
+            const needResize = width != canvas.width || height != canvas.height;
+            if(needResize){
+                renderer.setSize(width,height,false);
+            }
+            return needResize;
+        }
+
+        // to maintain camera aspect ratio
+        function maintainCameraAspectRatio(){
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.width/canvas.height;
+            camera.updateProjectionMatrix();
+        }
+
+        // primitives
+        const cgeometry = new Three.CircleGeometry( 5, 32 );
+        const cmaterial = new Three.MeshPhongMaterial( { color: 0xffff00 } );
+        const circle = new Three.Mesh( cgeometry, cmaterial );
+        scene.add( circle );
+
+        const geometry = new Three.BoxGeometry(1,1,1);
+		const material = new Three.MeshPhongMaterial( { color: 0x00ff00,side: Three.DoubleSide, } );
+		const cube = new Three.Mesh( geometry, material );
+		scene.add( cube );
+
+        scene.add(circle);
+
+        const light = new Three.DirectionalLight(0xffffff,1);
+        light.position.set(-1,2,4);
+        scene.add(light);
+
+        function render(){
+            if(resizeRendererToDisplaySize()){
+                maintainCameraAspectRatio();
+            }
+
+            circle.rotation.y += 0.01;
+            cube.rotation.x += 0.01;
+
+            renderer.render(scene,camera);
+
+            requestAnimationFrame(render);
+        }
+
+        function main(){
+            render();
+        }
+
+        main()
+    </script>
+</body>
+</html>
