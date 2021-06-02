@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Primitives</title>
+    <style>
+        html,body{
+            margin:0;
+            padding:0;
+            height:100%;
+        }
+
+        #canvas{
+            width:100%;
+            height:100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import * as Three from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js";
+
+        const renderer = new Three.WebGLRenderer({
+            canvas:document.querySelector("#canvas")
+        })
+
+        const camera = new Three.PerspectiveCamera(75,2,0.1,15);
+        camera.position.z = 2;
+        
+        const scene = new Three.Scene();
+
+        const boxGeometry = new Three.BoxGeometry(1,1,1);
+        const material = new Three.MeshPhongMaterial({color:0xaacc11});
+        const box = new Three.Mesh(boxGeometry,material);
+
+        const light = new Three.DirectionalLight(0xffffff,1);
+        light.position.set(-1,2,4);
+        scene.add(light);
+
+        scene.add(box);
+
+        function resizeRenderertoDisplaySize(){
+            const canvas = renderer.domElement;
+            const pixelRatio = window.devicePixelRatio;
+            const width  = canvas.clientWidth  * pixelRatio | 0;
+            const height = canvas.clientHeight * pixelRatio | 0;
+            const needResize = canvas.width !== width || canvas.height !== height;
+            if (needResize) {
+                renderer.setSize(width, height, false);
+            }
+            return needResize;
+        }
+
+        function render(){
+            if(resizeRenderertoDisplaySize()){
+                const canvas = renderer.domElement;
+                camera.aspect = canvas.clientWidth/canvas.clientHeight;
+                camera.updateProjectionMatrix();
+            }
+
+            renderer.render(scene,camera);
+
+            box.rotation.x += 0.01;
+
+            requestAnimationFrame(render);
+        }
+
+        render();
+    </script>
+</body>
+</html>
