@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scene Graph</title>
+    <style>
+        html,body{
+            margin:0;
+            padding: 0;
+            height: 100%;
+        }
+
+        canvas{
+            width: 100%;
+            height:100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+        import * as Three from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js";
+
+        const renderer = new Three.WebGLRenderer({
+            canvas:document.querySelector("#canvas")
+        })
+
+        const camera = new Three.PerspectiveCamera(40,2,0.1,1000);
+        camera.position.set(0,50,0);
+        camera.up.set(0,0,1);
+        camera.lookAt(0,0,0);
+
+        const scene = new Three.Scene();
+
+        // to prevent blocking
+        function resizeRendererToDisplaySize(){
+            const canvas = renderer.domElement;
+            const pixelRatio = window.devicePixelRatio;
+
+            const width = canvas.width * pixelRatio;
+            const height = canvas.height * pixelRatio;
+
+            const needResize = width != canvas.width || height != canvas.height;
+            if(needResize){
+                renderer.setSize(width,height,false);
+            }
+            return needResize;
+        }
+
+        // to maintain camera aspect ratio
+        function maintainCameraAspectRatio(){
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.width/canvas.height;
+            camera.updateProjectionMatrix();
+        }
+
+        const objects = [];
+ 
+        // use just one sphere for everything
+        const radius = 1;
+        const widthSegments = 6;
+        const heightSegments = 6;
+        const sphereGeometry = new Three.SphereGeometry(radius, widthSegments, heightSegments);
+
+        const solarSystem = new Three.Object3D();
+        scene.add(solarSystem);
+        objects.push(solarSystem);
+        
+        const sunMaterial = new Three.MeshPhongMaterial({emissive: 0xFFFF00});
+        const sunMesh = new Three.Mesh(sphereGeometry, sunMaterial);
+        sunMesh.scale.set(5, 5, 5);  // make the sun large
+        solarSystem.add(sunMesh);
+        objects.push(sunMesh);
+
+        const earthOrbit = new Three.Object3D();
+        solarSystem.add(earthOrbit);
+        objects.push(earthOrbit);
+
+        const EarthMaterial = new Three.MeshPhongMaterial({color:0x2233aa,emissive:0x144cc})
+        const EarthMesh = new Three.Mesh(sphereGeometry,EarthMaterial);
+        EarthMesh.position.x = 10;
+        earthOrbit.add(EarthMesh);
+        objects.push(EarthMesh);
+
+        const moonOrbit = new Three.Object3D();
+        moonOrbit.position.x = 3;
+        earthOrbit.add(moonOrbit);
+
+        const moonMaterial = new Three.MeshPhongMaterial({color:0x888888,emissive:0x222222});
+        const moonMesh = new Three.Mesh(sphereGeometry,moonMaterial);
+        moonMesh.position.x = 5;
+        moonMesh.scale.set(.5, .5, .5);
+        moonOrbit.add(moonMesh);
+        objects.push(moonMesh);
+
+        const light = new Three.PointLight(0xffffff,3);
+        scene.add(light);
+
+        objects.forEach(node=>{
+            const axes = new Three.AxesHelper();
+            axes.material.depthTest = false;
+            axes.renderOrder = 1;
+            //node.add(axes); // add axes to check
+        })
+
+        function render(time){
+            time *= 0.001/2;
+            
+            if(resizeRendererToDisplaySize()){
+                maintainCameraAspectRatio();
+            }
+
+            objects.forEach((obj) => {
+                obj.rotation.y = time;
+            });
+
+            renderer.render(scene,camera);
+
+            requestAnimationFrame(render);
+        }
+
+        function main(){
+            render();
+        }
+
+        main()
+    </script>
+</body>
+</html>
