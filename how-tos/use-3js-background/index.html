@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use THREE js as background</title>
+    <style>
+        body,html{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #canvas{
+            width: 100%;
+            height:100%;
+            position: fixed;
+            top:0;
+            left: 0;
+            z-index: -1;
+        }
+
+        main{
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        main *{
+            color:white!important;
+        }
+
+        main button{
+            color: black!important;;
+            background-color: white;
+            border-color:white;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <main>
+        <h1>Hello From Me!</h1>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo dolore qui laudantium, doloremque iure sunt ab. Animi quam magni consequatur at? Harum dicta rerum possimus? At itaque illum quo! Inventore.</p>
+        <form action="/">
+            <input type="text">
+            <button>Search</button>
+        </form>
+
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi libero obcaecati totam provident dolor facere nostrum illum cum molestias possimus aperiam, eum delectus expedita aspernatur quia quisquam tempore praesentium cumque!</p>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet aliquid, rerum sit incidunt nihil sapiente doloremque cumque excepturi. Delectus ab neque expedita nesciunt dolores reiciendis culpa voluptate sint quaerat beatae.</p>
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illo maiores quod quas placeat minima repellat saepe, rerum autem, earum, accusamus totam. Ad amet nesciunt architecto officia, sunt culpa adipisci consectetur?</p>
+        <ul>
+            <li>Java</li>
+            <li>C++</li>
+            <li>Rust</li>
+            <li>Go</li>
+        </ul>
+    </main>
+
+    <script type="module">
+        import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+    
+        const renderer = new THREE.WebGLRenderer({
+            canvas:document.querySelector("#canvas")
+        })
+
+        const camera = new THREE.PerspectiveCamera(75,2,0.1,100);
+        camera.position.z = 3;
+
+        const scene = new THREE.Scene();
+
+        const cube = new THREE.Mesh(
+            new THREE.BoxGeometry(1,1,1),
+            new THREE.MeshBasicMaterial({color:0x117799})
+        )
+
+        scene.add(cube);
+
+         // to prevent blocking
+         function resizeRendererToDisplaySize(){
+            const canvas = renderer.domElement;
+            const pixelRatio = window.devicePixelRatio;
+
+            console.log(canvas.clientHeight,canvas.height); // to check responsive
+
+            const width  = canvas.clientWidth  * pixelRatio | 0;
+            const height = canvas.clientHeight * pixelRatio | 0;
+
+            const needResize = width != canvas.width || height != canvas.height;
+            if(needResize){
+                renderer.setSize(width,height,false);
+            }
+            return needResize;
+        }
+
+        // to maintain camera aspect ratio
+        function maintainCameraAspectRatio(){
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.clientWidth/canvas.clientHeight;
+            camera.updateProjectionMatrix();
+        }
+
+        function render(time){
+            time *= 0.001;
+
+            if(resizeRendererToDisplaySize()){
+                maintainCameraAspectRatio();
+            }
+
+            cube.rotation.y = time;
+            renderer.render(scene,camera);
+
+            requestAnimationFrame(render);
+        }
+
+        render();
+    </script>
+</body>
+</html>
